@@ -670,15 +670,15 @@ If motion_state changes (not STATIC anymore):
 ### Complete State Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                         SYSTEM START                         │
-│                    Initial State: STATIC                     │
-└──────────────────────┬──────────────────────────────────────┘
+┌───────────────────────────────────────────────────┐
+│                  SYSTEM START                     │
+│              Initial State: STATIC                │
+└──────────────────────┬────────────────────────────┘
                        │
                        ▼
          ┌─────────────────────────┐
          │                         │
-         │        STATIC           │
+         │         STATIC          │/home/quantic/Datasets/LNT_Crane/test_videos/wooden_bar.mp4
          │   (Crane Idle/Stopped)  │
          │                         │
          └─────────────────────────┘
@@ -770,126 +770,126 @@ If motion_state changes (not STATIC anymore):
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 1: ROI Extraction and Padding                          │
-│  ───────────────────────────────────                         │
-│  • Extract ROI: frame[0:1080, 956:1144]                      │
-│  • ROI size: 188×1080 pixels                                 │
+│  STEP 1: ROI Extraction and Padding                         │
+│  ───────────────────────────────────                        │
+│  • Extract ROI: frame[0:1080, 956:1144]                     │
+│  • ROI size: 188×1080 pixels                                │
 │  • Pad to square: 1080×1080 (add 446px left, 446px right)   │
-│  • Result: Padded frame ready for YOLO                       │
+│  • Result: Padded frame ready for YOLO                      │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 2: YOLO Detection (Parallel Thread)                    │
-│  ─────────────────────────────────────                       │
-│  • YOLO thread receives padded frame                         │
-│  • Runs object detection for crane hook                      │
-│  • Filters detections by confidence > 0.5                    │
-│  • Returns bounding boxes in padded frame coordinates        │
-│  • Example: [(540, 300, 580, 360)]                           │
+│  STEP 2: YOLO Detection (Parallel Thread)                   │
+│  ─────────────────────────────────────                      │
+│  • YOLO thread receives padded frame                        │
+│  • Runs object detection for crane load                     │
+│  • Filters detections by confidence > 0.5                   │
+│  • Returns bounding boxes in padded frame coordinates       │
+│  • Example: [(540, 300, 580, 360)]                          │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 3: Coordinate Remapping                                │
-│  ────────────────────────────                                │
-│  • Convert padded coordinates back to original frame         │
-│  • x_original = x_padded - 446 + 956                         │
-│  • y_original = y_padded + 0                                 │
-│  • Example: (540-446+956, 300) = (1050, 300)                 │
-│  • Bounding boxes now in full frame coordinates              │
+│  STEP 3: Coordinate Remapping                               │
+│  ────────────────────────────                               │
+│  • Convert padded coordinates back to original frame        │
+│  • x_original = x_padded - 446 + 956                        │
+│  • y_original = y_padded + 0                                │
+│  • Example: (540-446+956, 300) = (1050, 300)                │
+│  • Bounding boxes now in full frame coordinates             │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 4: Full Frame Preprocessing                            │
-│  ───────────────────────────────                             │
-│  • Convert full frame to grayscale                           │
-│  • Apply Gaussian blur (5×5 kernel)                          │
-│  • Result: Smoothed grayscale frame                          │
+│  STEP 4: Full Frame Preprocessing                           │
+│  ───────────────────────────────                            │
+│  • Convert full frame to grayscale                          │
+│  • Apply Gaussian blur (5×5 kernel)                         │
+│  • Result: Smoothed grayscale frame                         │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 5: Optical Flow Calculation (if not first frame)       │
-│  ──────────────────────────────────────────────────          │
-│  • Use previous frame's features                             │
-│  • Track features using Lucas-Kanade                         │
-│  • Calculate displacement vectors                            │
-│  • Compute average magnitude: e.g., 2.3 pixels               │
-│  • Compute average angle: e.g., -15 degrees                  │
-│  • Add to of_window (keeps last 15 values)                   │
+│  STEP 5: Optical Flow Calculation (if not first frame)      │
+│  ──────────────────────────────────────────────────         │
+│  • Use previous frame's features                            │
+│  • Track features using Lucas-Kanade                        │
+│  • Calculate displacement vectors                           │
+│  • Compute average magnitude: e.g., 2.3 pixels              │
+│  • Compute average angle: e.g., -15 degrees                 │
+│  • Add to of_window (keeps last 15 values)                  │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 6: Frame Difference Calculation                        │
-│  ────────────────────────────────────                        │
-│  • Subtract: |current_frame - previous_frame|                │
-│  • Threshold differences > 25                                │
-│  • Find contours of changed regions                          │
-│  • Calculate percentage: e.g., 1.8%                          │
-│  • Add to fd_window (keeps last 15 values)                   │
+│  STEP 6: Frame Difference Calculation                       │
+│  ────────────────────────────────────                       │
+│  • Subtract: |current_frame - previous_frame|               │
+│  • Threshold differences > 25                               │
+│  • Find contours of changed regions                         │
+│  • Calculate percentage: e.g., 1.8%                         │
+│  • Add to fd_window (keeps last 15 values)                  │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 7: Motion Classification                               │
-│  ─────────────────────────────                               │
-│  • Calculate motion_metric = 0.8×OF + 0.4×FD                 │
-│  • Apply angle factor                                        │
-│  • Determine current_frame_moving (True/False)               │
-│  • Add to state_history (keeps last 75 decisions)            │
-│  • Majority voting: count True values                        │
-│  • Decide: "MOVING_LOAD" or "STATIC"                         │
+│  STEP 7: Motion Classification                              │
+│  ─────────────────────────────                              │
+│  • Calculate motion_metric = 0.8×OF + 0.4×FD                │
+│  • Apply angle factor                                       │
+│  • Determine current_frame_moving (True/False)              │
+│  • Add to state_history (keeps last 75 decisions)           │
+│  • Majority voting: count True values                       │
+│  • Decide: "MOVING_LOAD" or "STATIC"                        │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 8: Main Center Calculation                             │
-│  ───────────────────────────────                             │
-│  • If detections exist:                                      │
-│    - Find largest bounding box by area                       │
-│    - Calculate center: cx = (x1+x2)/2, cy = (y1+y2)/2        │
-│    - Add cy to center_history                                │
-│    - Detect features in 80×80 patch around center            │
-│    - Update previous_features for next frame                 │
+│  STEP 8: Main Center Calculation                            │
+│  ───────────────────────────────                            │
+│  • If detections exist:                                     │
+│    - Find largest bounding box by area                      │
+│    - Calculate center: cx = (x1+x2)/2, cy = (y1+y2)/2       │
+│    - Add cy to center_history                               │
+│    - Detect features in 80×80 patch around center           │
+│    - Update previous_features for next frame                │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 9: Vertical Trend Detection                            │
-│  ────────────────────────────────                            │
-│  • Compare Y positions over last 25 frames                   │
-│  • Calculate dy = Y_now - Y_25_frames_ago                    │
-│  • Determine trend: "up", "down", or "steady"                │
-│  • Apply majority confirmation from last 6 trends            │
-│  • Result: e.g., "up" (lifting detected)                     │
+│  STEP 9: Vertical Trend Detection                           │
+│  ────────────────────────────────                           │
+│  • Compare Y positions over last 25 frames                  │
+│  • Calculate dy = Y_now - Y_25_frames_ago                   │
+│  • Determine trend: "up", "down", or "steady"               │
+│  • Apply majority confirmation from last 6 trends           │
+│  • Result: e.g., "up" (lifting detected)                    │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 10: Lifting Detection Logic                            │
-│  ────────────────────────────────                            │
-│  • Check if unloading = True (if so, lifting = False)        │
-│  • Calculate immediate_lift condition                        │
-│  • Manage lifting_freeze state machine                       │
-│  • Update lift_false_counter                                 │
-│  • Apply 1-second freeze before confirming lifting           │
-│  • Apply 34-second delay before turning off lifting          │
-│  • Result: lifting = True or False                           │
+│  STEP 10: Lifting Detection Logic                           │
+│  ────────────────────────────────                           │
+│  • Check if unloading = True (if so, lifting = False)       │
+│  • Calculate immediate_lift condition                       │
+│  • Manage lifting_freeze state machine                      │
+│  • Update lift_false_counter                                │
+│  • Apply 1-second freeze before confirming lifting          │
+│  • Apply 34-second delay before turning off lifting         │
+│  • Result: lifting = True or False                          │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 11: Unloading Detection (if applicable)                │
-│  ───────────────────────────────────────                     │
-│  • Check if motion_state = "STATIC" after "MOVING_LOAD"      │
-│  • If yes, create/update unloading_y_buffer                  │
-│  • Apply exponential moving average to Y positions           │
-│  • Check criteria: 45 sec + variation ≤ 8 pixels             │
-│  • If met: unloading = True                                  │
-│  • Else: continue buffering or reset if motion resumes       │
+│  STEP 11: Unloading Detection (if applicable)               │
+│  ───────────────────────────────────────                    │
+│  • Check if motion_state = "STATIC" after "MOVING_LOAD"     │
+│  • If yes, create/update unloading_y_buffer                 │
+│  • Apply exponential moving average to Y positions          │
+│  • Check criteria: 45 sec + variation ≤ 8 pixels            │
+│  • If met: unloading = True                                 │
+│  • Else: continue buffering or reset if motion resumes      │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
@@ -919,12 +919,12 @@ If motion_state changes (not STATIC anymore):
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 14: Output                                             │
-│  ───────────────                                             │
-│  • Write annotated frame to output video file                │
-│  • Display frame in window                                   │
-│  • Store previous_frame = current grayscale                  │
-│  • Wait for next frame                                       │
+│  STEP 14: Output                                      /home/quantic/Datasets/LNT_Crane/test_videos/wooden_bar.mp4      │
+│  ───────────────                                            │
+│  • Write annotated frame to output video file               │
+│  • Display frame in window                                  │
+│  • Store previous_frame = current grayscale                 │
+│  • Wait for next frame                                      │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
@@ -992,17 +992,3 @@ If motion_state changes (not STATIC anymore):
 - **Top-down view:** Decrease `vert_px_threshold` (more sensitive to small changes)
 - **Side view:** Increase `vert_px_threshold` (larger pixel displacement for same movement)
 
-***
-
-## Summary
-
-This documentation provides a complete technical and non-technical overview of the Crane Load Detection System. The system uses a sophisticated combination of:
-
-1. **YOLO object detection** for locating the crane hook
-2. **Optical flow analysis** for measuring motion across full frames
-3. **Frame difference** for detecting pixel-level changes
-4. **Vertical trend analysis** for detecting lifting/lowering
-5. **State machines** with smoothing and freeze logic for robust classification
-6. **Time-based buffering** for reliable unloading detection
-
-The result is a system that can reliably classify crane operations in real-time industrial environments while minimizing false positives and state flickering through multiple layers of confirmation and smoothing logic.
