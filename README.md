@@ -726,13 +726,13 @@ If motion_state changes (not STATIC anymore):
                 │ Unloading
                 │ complete
                 ▼
-         ┌─────────────────────────┐
-         │                         │
-         │        STATIC           │
-         │      (Ready for         │
-         │      next cycle)        │
-         │                         │
-         └─────────────────────────┘
+         ┌────────────────────────┐
+         │                        │
+         │        STATIC          │
+         │      (Ready for        │
+         │      next cycle)       │
+         │                        │
+         └────────────────────────┘
 ```
 
 
@@ -765,7 +765,7 @@ If motion_state changes (not STATIC anymore):
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  FRAME N arrives from video                                  │
+│  FRAME N arrives from video                                 │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
@@ -894,32 +894,32 @@ If motion_state changes (not STATIC anymore):
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 12: State Update and Logging                           │
-│  ─────────────────────────────────                           │
-│  • Determine new_state: "UNLOADING", "MOVING_LOAD", "STATIC" │
-│  • If state changed from previous:                           │
-│    - Log transition with timestamp                           │
-│    - Record OF, FD, angle, trend values                      │
-│  • Update current_state                                      │
-│  • Update previous_state for next frame                      │
+│  STEP 12: State Update and Logging                          │
+│  ─────────────────────────────────                          │
+│  • Determine new_state: "UNLOADING", "MOVING_LOAD", "STATIC"│
+│  • If state changed from previous:                          │
+│    - Log transition with timestamp                          │
+│    - Record OF, FD, angle, trend values                     │
+│  • Update current_state                                     │
+│  • Update previous_state for next frame                     │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 13: Visualization                                      │
-│  ──────────────────────                                      │
-│  • Draw semi-transparent overlay box                         │
-│  • Display "Load Lifting: True/False" (colored)              │
-│  • Display "Crane status: Moving/Idle" (colored)             │
-│  • Display "Unloading Status: True/False" (colored)          │
-│  • Draw bounding boxes around detections                     │
-│  • Draw yellow circle at main center                         │
-│  • Draw green ROI rectangle                                  │
+│  STEP 13: Visualization                                     │
+│  ──────────────────────                                     │
+│  • Draw semi-transparent overlay box                        │
+│  • Display "Load Lifting: True/False" (colored)             │
+│  • Display "Crane status: Moving/Idle" (colored)            │
+│  • Display "Unloading Status: True/False" (colored)         │
+│  • Draw bounding boxes around detections                    │
+│  • Draw yellow circle at main center                        │
+│  • Draw green ROI rectangle                                 │
 └──────────────────────┬──────────────────────────────────────┘
                        │
                        ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  STEP 14: Output                                      /home/quantic/Datasets/LNT_Crane/test_videos/wooden_bar.mp4      │
+│  STEP 14: Output                                            │
 │  ───────────────                                            │
 │  • Write annotated frame to output video file               │
 │  • Display frame in window                                  │
